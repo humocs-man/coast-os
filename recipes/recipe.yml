@@ -6,8 +6,8 @@ name: coastOS
 description: This is my personal OS image.
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
-image-version: 42 # latest is also supported if you want new updates ASAP
+base-image: ghcr.io/ublue-os/base-main
+image-version: latest # latest is also supported if you want new updates ASAP
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
@@ -19,12 +19,21 @@ modules:
 
   - type: dnf
     repos:
+      cleanup: true
       copr:
         - atim/starship
+        - ryanabx/cosmic-epoch
     install:
       packages:
         - micro
         - starship
+        - fastfetch
+        - cosmic-desktop
+    replace:
+      - from-repo: copr:copr.fedorainfracloud.org:ryanabx:patched-rpms
+        packages:
+          - flatpak
+        
     remove:
       packages:
         # example: removing firefox (in favor of the flatpak)
@@ -38,8 +47,18 @@ modules:
         scope: system
         # If no repo information is specified, Flathub will be used by default
         install: # system flatpaks we want all users to have and not remove
-          - org.mozilla.firefox
           - org.gnome.Loupe
+          - com.valvesoftware.Steam
+          - org.gnome.SimpleScan
+          - org.mozilla.Thunderbird
+          - com.spotify.Client
+          - com.collaboraoffice.Office
+          - com.vivaldi.Vivaldi
       - scope: user # Also add Flathub user repo, but no user packages
+  - type: brew 
+    brew-analytics: false
+    auto-upgrade: true
+    upgrade-interval: ['0d','6h','0m']
+    
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
